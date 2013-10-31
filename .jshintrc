@@ -1,0 +1,32 @@
+{
+    "predef": [
+
+    ],
+
+    "node": true,
+    "browser": true,
+
+    "es5": true,
+    "strict": false,
+
+    "bitwise": true,
+    "curly": true,
+    "eqeqeq": true,
+    "immed": true,
+    "latedef": true,
+    "noarg": true,
+    "regexp": true,
+    "undef": true,
+
+    "camelcase": false,
+    "esnext": true,
+    "newcap": true,
+    "noempty": true,
+    "onevar": true,
+    "trailing": true,
+    "indent": 2,
+    "quotmark": "single",
+    "unused": true,
+    "smarttabs": true,
+    "white": false
+}

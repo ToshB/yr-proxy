@@ -1,0 +1,23 @@
+{
+  "name": "tosh-yr-proxy",
+  "subdomain": "tosh-yr-proxy",
+  "author": {
+    "name": "Torstein Bjørnstad"
+  },
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "app.js"
+  },
+  "dependencies": {
+    "xml2js": "~0.2.8",
+    "express": "~3.4.4",
+    "memjs": "~0.8.0",
+    "request": "~2.27.0"
+  },
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.2.x"
+  },
+  "devDependencies": {}
+}
