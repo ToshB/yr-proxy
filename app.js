@@ -1,7 +1,7 @@
 /**
  * Module dependencies.
  */
-
+require('newrelic');
 var express = require('express'),
     request = require('request'),
     MemJS = require('memjs').Client,
