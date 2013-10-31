@@ -16,6 +16,7 @@ var express = require('express'),
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
   app.use(function (req, res, next){
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     next();
   });
