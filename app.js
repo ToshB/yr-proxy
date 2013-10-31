@@ -53,7 +53,7 @@ function getCachedJson(path, callback){
   });
 }
 function cacheJson(path, json){
-  var lifetimeInSeconds = 5,
+  var lifetimeInSeconds = 600,
     data = {body: json, expires: new Date()};
   data.expires.setSeconds(data.expires.getSeconds() + lifetimeInSeconds);
 
