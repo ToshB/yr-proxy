@@ -19,6 +19,7 @@ app.configure(function(){
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     next();
   });
+  app.use(express.favicon());
 });
 
 app.get('/', function(req, res){
