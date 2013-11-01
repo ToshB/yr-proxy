@@ -4,14 +4,28 @@
 require('newrelic');
 var express = require('express'),
     request = require('request'),
-    MemJS = require('memjs').Client,
+    //redis = require('redis').createClient(),
     xml2js = require('xml2js'),
     app = express(),
-    memjs = MemJS.create(),
-    parser = new xml2js.Parser({
-      explicitArray: false,
-      mergeAttrs: true
-    });
+    parser,
+    redis;
+
+if(process.env.REDISTOGO_URL){
+  var rtg = require('url').parse(process.env.REDISTOGO_URL);
+  redis = require('redis').createClient(rtg.port, rtg.hostname);
+  redis.auth(rtg.auth.split(':')[1]);
+}else{
+  redis = require('redis').createClient();
+}
+
+parser = new xml2js.Parser({
+  explicitArray: false,
+  mergeAttrs: true
+});
+
+redis.on('error', function (err) {
+    console.log('Error ' + err);
+  });
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
@@ -24,8 +38,8 @@ app.configure(function(){
 });
 
 app.get('/', function(req, res){
-  memjs.stats(function (err, server, stats){
-    res.send('Cached responses: '+stats.curr_items);
+  redis.keys('*', function (err, keys){
+    res.send({'Cached responses ': keys});
   });
 });
 
@@ -43,7 +57,7 @@ function loadData(path, callback){
 }
 
 function getCachedJson(path, callback){
-  memjs.get(path, function(err, responseDataString){
+  redis.get(path, function(err, responseDataString){
     var responseData = JSON.parse(responseDataString);
     if(responseData){
       responseData.expires = new Date(responseData.expires);
@@ -58,11 +72,7 @@ function cacheJson(path, json){
     data = {body: json, expires: new Date()};
   data.expires.setSeconds(data.expires.getSeconds() + lifetimeInSeconds);
 
-  memjs.set(path, JSON.stringify(data), function (err){
-    if(err){
-      console.error(err);
-    }
-  }, lifetimeInSeconds);
+  redis.set(path, JSON.stringify(data));
   return data;
 }
 
