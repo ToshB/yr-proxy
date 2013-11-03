@@ -4,26 +4,25 @@
 require('newrelic');
 var express = require('express'),
     request = require('request'),
-    //redis = require('redis').createClient(),
     xml2js = require('xml2js'),
+    redis = require('redis'),
+    parser = new xml2js.Parser({expicitArray: false, mergeAttrs: true}),
     app = express(),
-    parser,
-    redis;
+    redisClient = getRedisClient();
 
-if(process.env.REDISTOGO_URL){
-  var rtg = require('url').parse(process.env.REDISTOGO_URL);
-  redis = require('redis').createClient(rtg.port, rtg.hostname);
-  redis.auth(rtg.auth.split(':')[1]);
-}else{
-  redis = require('redis').createClient();
+function getRedisClient(){
+  var client = null,
+      rtg = process.env.REDISTOGO_URL ? require('url').parse(process.env.REDISTOGO_URL) : null;
+  if(rtg){
+    client = redis.createClient(rtg.port, rtg.hostname);
+    client.auth(rtg.auth.split(':')[1]);
+  }else{
+    client = redis.createClient();
+  }
+  return client;
 }
 
-parser = new xml2js.Parser({
-  explicitArray: false,
-  mergeAttrs: true
-});
-
-redis.on('error', function (err) {
+redisClient.on('error', function (err) {
     console.log('Error ' + err);
   });
 
@@ -38,18 +37,36 @@ app.configure(function(){
 });
 
 app.get('/', function(req, res){
-  redis.keys('*', function (err, keys){
+  redisClient.keys('*', function (err, keys){
     res.send({'Cached responses ': keys});
   });
 });
 
-function loadData(path, callback){
+function replaceLinks(responseBody, hostName){
+  return responseBody.replace(/(http:\/\/)www.yr.no(.*)\.xml/g, '$1'+hostName+'$2.json');
+}
+
+function cleanupData(data){
+  data.weatherdata.links = data.weatherdata.links[0].link;
+  data.weatherdata.links.forEach(function(link){
+    link.id = link.id.replace('xml', 'json');
+  });
+}
+
+function loadData(hostName, path, callback){
   var yrPath = 'http://www.yr.no' + path.replace('json', 'xml');
   request(yrPath, function (err, res, body){
     if(!err && res.statusCode === 200){
-      parser.parseString(body, function (err, res){
-        callback(err, res ? JSON.stringify(res) : null);
-      });
+      body = replaceLinks(body, hostName);
+      if(res.headers['content-type'].indexOf('text/xml')>-1){
+        parser.parseString(body, function (err, obj){
+          cleanupData(obj);
+          callback(err, res ? JSON.stringify(obj) : null);
+          return;
+        });
+      }else{
+        callback(err, JSON.stringify({Error: 'Not xml/json'}));
+      }
     }else{
       callback(null, JSON.stringify({Error: 'Error ' + res.statusCode + ' accessing ' + yrPath}));
     }
@@ -57,7 +74,7 @@ function loadData(path, callback){
 }
 
 function getCachedJson(path, callback){
-  redis.get(path, function(err, responseDataString){
+  redisClient.get(path, function(err, responseDataString){
     var responseData = JSON.parse(responseDataString);
     if(responseData){
       responseData.expires = new Date(responseData.expires);
@@ -68,15 +85,16 @@ function getCachedJson(path, callback){
   });
 }
 function cacheJson(path, json){
-  var lifetimeInSeconds = 600,
+  var lifetimeInSeconds = 5,
     data = {body: json, expires: new Date()};
   data.expires.setSeconds(data.expires.getSeconds() + lifetimeInSeconds);
 
-  redis.set(path, JSON.stringify(data));
+  redisClient.set(path, JSON.stringify(data));
+  redisClient.expire(path, lifetimeInSeconds);
   return data;
 }
 
-function getResponseData(path, callback){
+function getResponseData(hostName, path, callback){
   getCachedJson(path, function(err, responseData){
     if(responseData){
       responseData.expires = new Date(responseData.expires);
@@ -84,7 +102,7 @@ function getResponseData(path, callback){
       callback(null, responseData);
     }else{
       console.log('Missing data for "'+path+'". Fetching.');
-      loadData(path, function (err, json){
+      loadData(hostName, path, function (err, json){
         callback(null, err ? {body: JSON.stringify(err)} : cacheJson(path, json));
       });
     }
@@ -93,7 +111,7 @@ function getResponseData(path, callback){
 
 app.get(/(.+)/, function(req, res){
   var path = req.params[0];
-  getResponseData(path, function(err, data){
+  getResponseData(req.headers.host, path, function(err, data){
     if(data.expires){
       res.setHeader('Cache-Control', 'public');
       res.setHeader('Expires', data.expires.toUTCString());
