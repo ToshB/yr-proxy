@@ -1,6 +1,7 @@
 require('newrelic');
 var express = require('express'),
     yrProxy = require('./yrProxy.js')(10),
+ //   search = require('./search.js'),
     app = express();
 
 app.configure(function(){
@@ -17,6 +18,21 @@ app.get('/', function(req, res){
   yrProxy.getStats(function (err, data){
     res.send(data);
   });
+});
+
+app.get('/search', function(req, res){
+  var query = req.query.q,
+      data = {results: [{placetype: 'By', placename: 'Oslo', municipality:'Oslo', county:'Oslo', lat: 59.91273, lon: 10.74609, urls: {
+    nnNO: 'http://yr-proxy.tosh.no/stad/Noreg/Oslo/Oslo/Oslo/varsel.json',
+    nbNO: 'http://yr-proxy.tosh.no/sted/Norge/Oslo/Oslo/Oslo/varsel.json',
+    en: 'http://yr-proxy.tosh.no/place/Norway/Oslo/Oslo/Oslo/forecast.json',
+  }
+}]};
+  if(!query){
+    res.end(JSON.stringify({Error:'Missing query parameter q, e.g. search?q=Trondheim'}));
+    return;
+  }
+  res.end(JSON.stringify(data));
 });
 
 app.get(/(.+)/, function(req, res){
