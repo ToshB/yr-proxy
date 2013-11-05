@@ -20,25 +20,32 @@ app.get('/', function(req, res){
   });
 });
 
-app.get('/search2', function(req, res){
-  var query = req.query.q;
-  if(!query){
-    res.send(JSON.stringify({Error:'Missing query parameter q, e.g. search?q=Trondheim'}));
-    return;
-  }
-  search.search(req.query.q, function(err, results){
-    res.send(JSON.stringify(results));
-  });
-});
+// app.get('/search2', function(req, res){
+//   var query = req.query.q;
+//   if(!query){
+//     res.send(JSON.stringify({Error:'Missing query parameter q, e.g. search?q=Trondheim'}));
+//     return;
+//   }
+//   search.search(req.query.q, function(err, results){
+//     res.send(JSON.stringify(results));
+//   });
+// });
 
 app.get('/search', function(req, res){
   var query = req.query.q,
-      data = {results: [{placetype: 'By', placename: 'Oslo', municipality:'Oslo', county:'Oslo', lat: 59.91273, lon: 10.74609, urls: {
-    nnNO: 'http://yr-proxy.tosh.no/stad/Noreg/Oslo/Oslo/Oslo/varsel.json',
-    nbNO: 'http://yr-proxy.tosh.no/sted/Norge/Oslo/Oslo/Oslo/varsel.json',
-    en: 'http://yr-proxy.tosh.no/place/Norway/Oslo/Oslo/Oslo/forecast.json',
-  }
-}]};
+      data = {results: [
+        {
+          placetype: 'By', 
+          placename: 'Oslo', 
+          municipality:'Oslo', 
+          county:'Oslo', 
+          lat: 59.91273, 
+          lon: 10.74609, 
+          nnurl: 'http://yr-proxy.tosh.no/stad/Noreg/Oslo/Oslo/Oslo/varsel.json',
+          bmurl: 'http://yr-proxy.tosh.no/sted/Norge/Oslo/Oslo/Oslo/varsel.json',
+          enurl: 'http://yr-proxy.tosh.no/place/Norway/Oslo/Oslo/Oslo/forecast.json'
+        }
+      ]};
   if(!query){
     res.end(JSON.stringify({Error:'Missing query parameter q, e.g. search?q=Trondheim'}));
     return;
