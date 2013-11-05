@@ -6,7 +6,7 @@ function search(searchQuery, callback){
     if(err){
       return callback(err, null);
     }
-    client.query('SELECT * FROM steder where lower(name) LIKE $1', [searchQuery+'%'], function(err, result){
+    client.query('SELECT * FROM steder where lower(name) LIKE $1', [searchQuery.toLowerCase()+'%'], function(err, result){
       done();
 
       if(err){
