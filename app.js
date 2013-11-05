@@ -21,8 +21,13 @@ app.get('/', function(req, res){
 });
 
 app.get('/search2', function(req, res){
+  var query = req.query.q;
+  if(!query){
+    res.send(JSON.stringify({Error:'Missing query parameter q, e.g. search?q=Trondheim'}));
+    return;
+  }
   search.search(req.query.q, function(err, results){
-    res.end(res);
+    res.send(JSON.stringify(results));
   });
 });
 
