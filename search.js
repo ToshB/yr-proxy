@@ -10,6 +10,7 @@ function search(query, callback){
     });
 
     query.on('end', function (){
+    	client.end();
     	callback(err, {results: rows});
     })
   });
