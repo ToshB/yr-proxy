@@ -15,7 +15,7 @@ function search(searchQuery, callback){
 
     query.on('end', function (){
     	client.end();
-    	callback(err, {results: rows});
+    	callback(null, {results: rows});
     })
   });
 }
