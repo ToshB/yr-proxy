@@ -1,22 +1,19 @@
 var pg = require('pg');
-
+var conString = process.env.DATABASE_URL || 'postgres://tosh:5432@localhost/tosh';
+console.log(conString);
 function search(searchQuery, callback){
-  pg.connect(process.env.DATABASE_URL, function(err, client){
+  pg.connect(conString, function(err, client, done){
     if(err){
-        callback(err, null);
-        return;
+      return callback(err, null);
     }
-    var query = client.query('SELECT * FROM steder where place LIKE $1%', [searchQuery]),
-    	rows = [];
+    client.query('SELECT * FROM steder where lower(name) LIKE $1', [searchQuery+'%'], function(err, result){
+      done();
 
-    query.on('row', function(row){
-    	rows.push(row);
+      if(err){
+        return callback(err, null);
+      }
+      callback(null, {results: result.rows});
     });
-
-    query.on('end', function (){
-    	client.end();
-    	callback(null, {results: rows});
-    })
   });
 }
 
