@@ -23,8 +23,9 @@ app.get('/', function(req, res){
 app.get('/search2', function(req, res){
   search.search(req.query.q, function(err, results){
     res.end(res);
-  }));
-}
+  });
+});
+
 app.get('/search', function(req, res){
   var query = req.query.q,
       data = {results: [{placetype: 'By', placename: 'Oslo', municipality:'Oslo', county:'Oslo', lat: 59.91273, lon: 10.74609, urls: {
