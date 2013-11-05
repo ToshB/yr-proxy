@@ -20,16 +20,21 @@ app.get('/', function(req, res){
   });
 });
 
-// app.get('/search2', function(req, res){
-//   var query = req.query.q;
-//   if(!query){
-//     res.send(JSON.stringify({Error:'Missing query parameter q, e.g. search?q=Trondheim'}));
-//     return;
-//   }
-//   search.search(req.query.q, function(err, results){
-//     res.send(JSON.stringify(results));
-//   });
-// });
+app.get('/search2', function(req, res){
+  var query = req.query.q;
+  if(!query){
+    res.send(JSON.stringify({Error:'Missing query parameter q, e.g. search?q=Trondheim'}));
+    return;
+  }
+  search.search(query, function(err, results){
+    if(err){
+      console.log(err);
+      res.send(JSON.stringify({Error:"An error occured during search"}));
+      return;
+    }
+    res.send(JSON.stringify(results));
+  });
+});
 
 app.get('/search', function(req, res){
   var query = req.query.q,

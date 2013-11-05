@@ -1,8 +1,12 @@
 var pg = require('pg');
 
-function search(query, callback){
+function search(searchQuery, callback){
   pg.connect(process.env.DATABASE_URL, function(err, client){
-    var query = client.query('SELECT * FROM steder where place LIKE $1%', [query]),
+    if(err){
+        callback(err, null);
+        return;
+    }
+    var query = client.query('SELECT * FROM steder where place LIKE $1%', [searchQuery]),
     	rows = [];
 
     query.on('row', function(row){
