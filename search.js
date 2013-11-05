@@ -1,6 +1,6 @@
+'use strict';
 var pg = require('pg');
 var conString = process.env.DATABASE_URL || 'postgres://tosh:5432@localhost/tosh';
-console.log(conString);
 function search(query, callback){
   pg.connect(conString, function(err, client, done){
     if(err){
@@ -12,7 +12,6 @@ function search(query, callback){
       if(err){
         return callback(err, null);
       }
-      console.log(result.rows);
       callback(null, {results: result.rows});
     });
   });

@@ -1,6 +1,7 @@
+'use strict';
 require('newrelic');
 var express = require('express'),
-    yrProxy = require('./yrProxy.js')(10),
+    yrProxy = require('./yrProxy.js')(600),
     search = require('./search.js'),
     app = express();
 
@@ -15,6 +16,27 @@ app.configure(function(){
 });
 
 app.get('/', function(req, res){
+  res.send(JSON.stringify({
+    title: 'Yr.no JSON/CORS Proxy',
+    about: 'Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK',
+    author: 'Torstein Bjørnstad',
+    github: 'https://github.com/toshb/yr-proxy',
+    usage: [
+      {
+        type: 'place search',
+        example: req.protocol + '://' + req.headers.host + '/search?q=tavang&pri=40',
+        usage: 'Free-text search, optional priority filter. Lower pri, bigger place.'
+      },
+      {
+        type: 'weather lookup',
+        example: req.protocol + '://' + req.headers.host + '/sted/Norge/Oslo/Oslo/Oslo/varsel.json',
+        usage: 'Looks up weather on yr.no, converts to json, adds cors headers. 10 min cache.'
+      }
+    ]
+  }));
+});
+
+app.get('/stats', function(req, res){
   yrProxy.getStats(function (err, data){
     res.send(data);
   });
