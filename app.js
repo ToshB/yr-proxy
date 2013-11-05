@@ -21,12 +21,14 @@ app.get('/', function(req, res){
 });
 
 app.get('/search', function(req, res){
-  var query = req.query.q;
-  if(!query){
+  var q = req.query.q,
+      pri = parseInt(req.query.pri, 10) || 999;
+
+  if(!q){
     res.send(JSON.stringify({Error:'Missing query parameter q, e.g. search?q=Trondheim'}));
     return;
   }
-  search.search(query, function(err, results){
+  search.search({q: q, pri: pri}, function(err, results){
     if(err){
       console.log(err);
       res.send(JSON.stringify({Error:'An error occured during search'}));
