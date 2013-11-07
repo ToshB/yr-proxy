@@ -6,7 +6,7 @@ function search(query, callback){
     if(err){
       return callback(err, null);
     }
-    client.query('SELECT * FROM steder where to_tsvector(\'simple\', lower(name)) @@ to_tsquery(\'simple\', $1) and priority<=$2 order by priority', [query.q.toLowerCase()+':*', query.pri], function(err, result){
+    client.query('SELECT * FROM steder where to_tsvector(\'simple\', lower(name)) @@ to_tsquery(\'simple\', $1) and priority<=$2 order by priority limit 20', [query.q.toLowerCase()+':*', query.pri], function(err, result){
       done();
 
       if(err){
