@@ -24,8 +24,8 @@ app.get('/', function(req, res){
     usage: [
       {
         type: 'place search',
-        example: req.protocol + '://' + req.headers.host + '/search?q=tavang&pri=40',
-        usage: 'Free-text search, optional priority filter. Lower pri, bigger place.'
+        example: req.protocol + '://' + req.headers.host + '/search?q=lufthavn&pri=40',
+        usage: 'Case insensitive per-word startswith search, optional priority filter. Lower pri, bigger place.'
       },
       {
         type: 'weather lookup',
