@@ -32,6 +32,11 @@ app.get('/', function(req, res){
         usage: 'Case insensitive per-word startswith search, optional priority filter. Lower pri, bigger place.'
       },
       {
+        type: 'nearby search',
+        example: req.protocol + '://' + req.headers.host + '/nearby?lat=59.16&lon=11.42&dist=5000',
+        usage: 'Location search, return locations near a given location. Max distance 20000 (meters).'
+      },
+      {
         type: 'weather lookup',
         example: req.protocol + '://' + req.headers.host + '/sted/Norge/Oslo/Oslo/Oslo/varsel.json',
         usage: 'Looks up weather on yr.no, converts to json, adds cors headers. 10 min cache.'
@@ -43,6 +48,29 @@ app.get('/', function(req, res){
 app.get('/stats', function(req, res){
   yrProxy.getStats(function (err, data){
     res.send(data);
+  });
+});
+
+app.get('/nearby', function(req, res){
+  var lat = req.query.lat,
+      lon = req.query.lon,
+      dist = req.query.dist || 10000;
+
+  if(dist > 20000){
+    dist = 20000;
+  }
+
+  if(!lat || !lon){
+    res.send(JSON.stringify({Error:'Missing query parameter lat or lon. e.g. nearby?lat=59.16&lon=11.42&dist=5000'}));
+  }
+
+  search.nearby({lat: lat, lon: lon, dist:dist}, function(err, results){
+    if(err){
+      console.log(err);
+      res.send(JSON.stringify({Error:'An error occured during search'}));
+      return;
+    }
+    res.send(JSON.stringify(results));
   });
 });
 
