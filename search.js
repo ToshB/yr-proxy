@@ -20,10 +20,11 @@ function nearby(query, callback){
 
 function search(query, callback){
   pg.connect(conString, function(err, client, done){
+    var cleanedQuery = query.q.toLowerCase().trim().replace(/\s+/g, '&');
     if(err){
       return callback(err, null);
     }
-    client.query('SELECT * FROM steder where to_tsvector(\'simple\', lower(name)) @@ to_tsquery(\'simple\', $1) and priority<=$2 order by priority limit 20', [query.q.toLowerCase()+':*', query.pri], function(err, result){
+    client.query('SELECT * FROM steder where to_tsvector(\'simple\', lower(name)) @@ to_tsquery(\'simple\', $1) and priority<=$2 order by priority limit 20', [cleanedQuery+':*', query.pri], function(err, result){
       done();
 
       if(err){
