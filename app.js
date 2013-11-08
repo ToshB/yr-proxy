@@ -15,6 +15,10 @@ app.configure(function(){
   app.use(express.favicon());
 });
 
+app.get('/mu-dcf59ea8-f9e77d78-e331ac23-70d9b8f8', function(req, res){
+  res.send('42');
+});
+
 app.get('/', function(req, res){
   res.send(JSON.stringify({
     title: 'Yr.no JSON/CORS Proxy',
