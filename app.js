@@ -1,7 +1,7 @@
 'use strict';
 require('newrelic');
 var express = require('express'),
-    yrProxy = require('./yrProxy.js')(600),
+    yrProxy = require('./yrProxy.js')(),
     search = require('./search.js'),
     app = express();
 

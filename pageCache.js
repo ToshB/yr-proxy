@@ -28,7 +28,6 @@ function getCachedJson(path, callback){
 function cacheJson(path, json, lifetimeInSeconds){
   var data = {body: json, expires: new Date()};
   data.expires.setSeconds(data.expires.getSeconds() + lifetimeInSeconds);
-
   redisClient.set(path, JSON.stringify(data));
   redisClient.expire(path, lifetimeInSeconds);
   return data;

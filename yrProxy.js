@@ -1,6 +1,6 @@
 var request = require('request'),
     xml2js = require('xml2js'),
-    pageCache = require('./pageCache.js'), 
+    pageCache = require('./pageCache.js'),
     parser = new xml2js.Parser({expicitArray: false, mergeAttrs: true});
 
 function replaceLinks(responseBody, hostName){
@@ -34,8 +34,7 @@ function loadData(hostName, path, callback){
   });
 }
 
-function YrProxy(lifetimeInSeconds){
-  this.lifetimeInSeconds = lifetimeInSeconds;
+function YrProxy(){
 }
 
 YrProxy.prototype.getStats = function(callback){
@@ -51,7 +50,7 @@ YrProxy.prototype.getResponseData = function(hostName, path, callback){
     }else{
       console.log('Missing data for "'+path+'". Fetching.');
       loadData(hostName, path, function (err, json){
-        callback(null, err ? {body: JSON.stringify(err)} : pageCache.cacheJson(path, json, this.lifetimeInSeconds));
+        callback(null, err ? {body: JSON.stringify(err)} : pageCache.cacheJson(path, json, 600));
       });
     }
   });
